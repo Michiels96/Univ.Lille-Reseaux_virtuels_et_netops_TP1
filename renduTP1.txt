@@ -1,0 +1,75 @@
+2.1 Configurez RT1 avec des sous interfaces plutot que d’utiliser les 2 interfaces Giga
+Configuration de PC0:
+    Aller dans l'onglet 'Desktop'-> IPConfiguration
+    IPv4 address: 10.0.0.1
+    Subnet mask: 255.255.255.0
+    Default gateway: 10.0.0.254
+    DNS server 0.0.0.0
+Configuration de PC1:
+    Aller dans l'onglet 'Desktop'-> IPConfiguration
+    IPv4 address: 20.0.0.1
+    Subnet mask: 255.255.255.0
+    Default gateway: 20.0.0.254
+    DNS server 0.0.0.0
+Configuration du switch0:
+    Aller dans l'onglet 'Config'-> VLAN Database
+    Ajouter les 2 VLAN's:
+    VLAN Number: 100
+    VLAN name: vlan-100
+    'add'
+    et
+    VLAN Number: 200
+    VLAN name: vlan-200
+    'add'
+    Configurer les ports du switch:
+        Celui vers PC0 (FastEthernet0/1):
+        VLAN -> 100
+        Puis cocher la checkbox sur 'On'
+        Celui vers PC1 (FastEthernet0/2):
+        VLAN -> 200
+        Puis cocher la checkbox sur 'On'
+        Celui vers Router0 (FastEthernet0/3):
+        Mettre 'Trunk' au lieu d''Access'
+        Laisser le VLAN sur '1'
+        Puis cocher la checkbox sur 'On'
+Configuration du Routeur:
+    Pour créer une sous-interface sur 'Router0':
+    apd. de 'Router>':
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/0.1
+    (100 représente le num. de VLAN)
+    #encapsulation dot1q 100
+    #ip address 10.0.0.254 255.255.255.0
+    #no shutdown
+    #exit
+
+    apd. de 'Router>':
+    #enable
+    #interface GigabitEthernet0/0/0.2
+    (200 représente le num. de VLAN)
+    #encapsulation dot1q 200
+    #ip address 20.0.0.254 255.255.255.0
+    #no shutdown
+    #exit
+
+2.2 Validez la possibilité de faire un ping entre PC1 et PC2
+    Aller dans l'onglet 'Desktop'-> Command prompt
+    exécuter la commande:
+    #ping 20.0.0.1
+    (voir 2.2_ping.png)
+2.3 Quelle est la table de routage de RT1 ?
+    Aller sur l'onglet 'CLI'
+    et exécuter la commande:
+    #show ip route
+    (voir 2.3_table_de_routage.png)
+
+
+3.1 Validez la possibilité de faire un ping entre PC1, PC2 et PC3
+3.2 Quelle est la table de routage de RT2 ?
+
+4.1 Validez la possibilité de faire un ping entre PC1, PC2 et PC3
+4.2 Quelle est la table de routage de RT2 ?
+
+5.1 Validez la possibilité de faire un ping entre PC1, PC2 et PC3
+5.2 Quelle est la table de routage de RT2 ?
