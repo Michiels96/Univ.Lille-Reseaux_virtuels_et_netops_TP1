@@ -33,7 +33,7 @@ Configuration du switch0:
         Laisser le VLAN sur '1'
         Puis cocher la checkbox sur 'On'
 Configuration du Routeur:
-    Pour créer une sous-interface sur 'Router0':
+    Pour créer une sous-interface sur 'Router0' sur le port GigabitEthernet0/0/0:
     apd. de 'Router>':
     #enable
     #configure terminal
@@ -66,10 +66,519 @@ Configuration du Routeur:
 
 
 3.1 Validez la possibilité de faire un ping entre PC1, PC2 et PC3
+Configuration de PC0:
+    Aller dans l'onglet 'Desktop'-> IPConfiguration
+    IPv4 address: 10.0.0.1
+    Subnet mask: 255.255.255.0
+    Default gateway: 10.0.0.254
+    DNS server 0.0.0.0
+Configuration de PC1:
+    Aller dans l'onglet 'Desktop'-> IPConfiguration
+    IPv4 address: 20.0.0.1
+    Subnet mask: 255.255.255.0
+    Default gateway: 20.0.0.254
+    DNS server 0.0.0.0
+Configuration de PC2:
+    Aller dans l'onglet 'Desktop'-> IPConfiguration
+    IPv4 address: 30.0.0.1
+    Subnet mask: 255.255.255.0
+    Default gateway: 30.0.0.254
+    DNS server 0.0.0.0
+Configuration du switch0:
+    Aller dans l'onglet 'Config'-> VLAN Database
+    Ajouter les 2 VLAN's:
+    VLAN Number: 100
+    VLAN name: vlan-100
+    'add'
+    et
+    VLAN Number: 200
+    VLAN name: vlan-200
+    'add'
+    Configurer les ports du switch:
+        Celui vers PC0 (FastEthernet0/1):
+        VLAN -> 100
+        Puis cocher la checkbox sur 'On'
+        Celui vers PC1 (FastEthernet0/2):
+        VLAN -> 200
+        Puis cocher la checkbox sur 'On'
+
+        Celui vers Router0 (FastEthernet0/4):
+        Mettre 'Trunk' au lieu d''Access'
+        Laisser le VLAN sur '1'
+        Puis cocher la checkbox sur 'On'
+
+        Celui vers Router1 (FastEthernet0/3):
+        Mettre 'Trunk' au lieu d''Access'
+        Laisser le VLAN sur '1'
+        Puis cocher la checkbox sur 'On'
+
+Configuration du switch1:
+    Aller dans l'onglet 'Config'-> VLAN Database
+    Ajouter le VLAN:
+    VLAN Number: 300
+    VLAN name: vlan-300
+    'add'
+    Configurer les ports du switch:
+        Celui vers PC2 (FastEthernet0/1):
+        VLAN -> 300
+        Puis cocher la checkbox sur 'On'
+
+        Celui vers Router1 (FastEthernet0/2):
+        Mettre 'Access'
+        Mettre le VLAN sur '300'
+        Puis cocher la checkbox sur 'On'
+
+Configuration de Router0:
+    1 cable entre le switch0 et router0 donc utilisation de sous-interfaces.
+    Pour créer une sous-interface sur 'Router0' sur le port GigabitEthernet0/0/0:
+    apd. de 'Router>' (dans l'onlget 'CLI'):
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/0.1
+    (100 représente le num. de VLAN)
+    #encapsulation dot1q 100
+    #ip address 10.0.0.253 255.255.255.0
+    Pour le protocole HSRP:
+    #standby 5 ip 10.0.0.254
+    #standby 5 priority 100
+    (pour voir les infos de HSRP: R1#show standby)
+    #no shutdown
+    #exit
+
+    apd. de 'Router>':
+    #enable
+    #interface GigabitEthernet0/0/0.2
+    (200 représente le num. de VLAN)
+    #encapsulation dot1q 200
+    #ip address 20.0.0.253 255.255.255.0
+    Pour le protocole HSRP:
+    #standby 5 ip 20.0.0.254
+    #standby 5 priority 80
+    #no shutdown
+    #exit
+
+Configuration de Router1:
+    1 cable entre le router1 et switch1 donc utilisation de sous-interfaces.
+    Pour créer une sous-interface sur 'Router0' sur le port GigabitEthernet0/0/0:
+    apd. de 'Router>' (dans l'onlget 'CLI'):
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/0.1
+    (100 représente le num. de VLAN)
+    #encapsulation dot1q 100
+    #ip address 10.0.0.252 255.255.255.0
+    Pour le protocole HSRP:
+    #standby 5 ip 10.0.0.254
+    #standby 5 priority 80
+    (pour voir les infos de HSRP: R1#show standby)
+    #no shutdown
+    #exit
+
+    apd. de 'Router>':
+    #enable
+    #interface GigabitEthernet0/0/0.2
+    (200 représente le num. de VLAN)
+    #encapsulation dot1q 200
+    #ip address 20.0.0.252 255.255.255.0
+    Pour le protocole HSRP:
+    #standby 5 ip 20.0.0.254
+    #standby 5 priority 100
+    #no shutdown
+    #exit
+
+    Sur le port GigabitEthernet0/0/1:
+    apd. de 'Router>':
+    #enable
+    #interface GigabitEthernet0/0/1
+    #ip address 30.0.0.254 255.255.255.0
+    #no shutdown
+    #exit
+
+    Tester la commande ping entre PC0, PC1 et PC2 (voir captures d'écrans)
+    Le ping vers et depuis PC2 ne fonctionne pas.
+    Depuis PC0, il est logique qu'il n'y accède pas car le paquet à partir du switch0, la priorité de 100 indique le chemin vers le router0.
+    Qui lui n'ai pas de chemin pour aller vers PC2.
+
 3.2 Quelle est la table de routage de RT2 ?
+    Aller sur l'onglet 'CLI'
+    et exécuter la commande:
+    #show ip route
+    (voir 3.2_table_de_routage.png)
+
+
+
+
+
+
+
+
+
 
 4.1 Validez la possibilité de faire un ping entre PC1, PC2 et PC3
+Configuration de PC0:
+    Aller dans l'onglet 'Desktop'-> IPConfiguration
+    IPv4 address: 10.0.0.1
+    Subnet mask: 255.255.255.0
+    Default gateway: 10.0.0.254
+    DNS server 0.0.0.0
+Configuration de PC1:
+    Aller dans l'onglet 'Desktop'-> IPConfiguration
+    IPv4 address: 20.0.0.1
+    Subnet mask: 255.255.255.0
+    Default gateway: 20.0.0.254
+    DNS server 0.0.0.0
+Configuration de PC2:
+    Aller dans l'onglet 'Desktop'-> IPConfiguration
+    IPv4 address: 30.0.0.1
+    Subnet mask: 255.255.255.0
+    Default gateway: 30.0.0.254
+    DNS server 0.0.0.0
+
+Configuration du switch0:
+    Aller dans l'onglet 'Config'-> VLAN Database
+    Ajouter les 2 VLAN's:
+    VLAN Number: 100
+    VLAN name: vlan-100
+    'add'
+    et
+    VLAN Number: 200
+    VLAN name: vlan-200
+    'add'
+    Configurer les ports du switch:
+        Celui vers PC0 (FastEthernet0/1):
+        VLAN -> 100
+        Puis cocher la checkbox sur 'On'
+        Celui vers PC1 (FastEthernet0/2):
+        VLAN -> 200
+        Puis cocher la checkbox sur 'On'
+
+        Celui vers Router0 (FastEthernet0/3):
+        Mettre 'Trunk' au lieu d''Access'
+        Laisser le VLAN sur '1'
+        Puis cocher la checkbox sur 'On'
+
+        Celui vers Router1 (FastEthernet0/4):
+        Mettre 'Trunk' au lieu d''Access'
+        Laisser le VLAN sur '1'
+        Puis cocher la checkbox sur 'On'
+
+Configuration du switch1:
+    Aller dans l'onglet 'Config'-> VLAN Database
+    Ajouter le VLAN:
+    VLAN Number: 300
+    VLAN name: vlan-300
+    'add'
+    Configurer les ports du switch:
+        Celui vers PC2 (FastEthernet0/1):
+        VLAN -> 300
+        Puis cocher la checkbox sur 'On'
+
+        Celui vers Router2 (FastEthernet0/2):
+        Mettre 'Trunk' au lieu d''Access'
+        Laisser le VLAN sur '1'
+        Puis cocher la checkbox sur 'On'
+
+        Celui vers Router3 (FastEthernet0/3):
+        Mettre 'Trunk' au lieu d''Access'
+        Laisser le VLAN sur '1'
+        Puis cocher la checkbox sur 'On'
+
+Configuration de Router0:
+    1 cable entre le switch0 et router0 donc utilisation de sous-interfaces.
+    Pour créer une sous-interface sur 'Router0' sur le port GigabitEthernet0/0/0:
+    apd. de 'Router>' (dans l'onlget 'CLI'):
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/0.1
+    (100 représente le num. de VLAN)
+    #encapsulation dot1q 100
+    #ip address 10.0.0.253 255.255.255.0
+    Pour le protocole HSRP:
+    #standby 5 ip 10.0.0.254
+    #standby 5 priority 100
+    (pour voir les infos de HSRP: R1#show standby)
+    #no shutdown
+    #exit
+
+    apd. de 'Router>':
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/0.2
+    (200 représente le num. de VLAN)
+    #encapsulation dot1q 200
+    #ip address 20.0.0.253 255.255.255.0
+    Pour le protocole HSRP:
+    #standby 5 ip 20.0.0.254
+    #standby 5 priority 80
+    #no shutdown
+    #exit
+    Allumer l'interface (checkbox sur 'on')
+
+PARTIE INTERCO 
+    apd. de 'Router>':
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/1
+    #ip address 50.0.0.1 255.255.255.252
+    #no shutdown
+    #exit
+
+
+
+
+Configuration de Router1:
+    1 cable entre le switch0 et router1 donc utilisation de sous-interfaces.
+    Pour créer une sous-interface sur 'Router0' sur le port GigabitEthernet0/0/0:
+    apd. de 'Router>' (dans l'onlget 'CLI'):
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/0.1
+    (100 représente le num. de VLAN)
+    #encapsulation dot1q 100
+    #ip address 10.0.0.252 255.255.255.0
+    Pour le protocole HSRP:
+    #standby 5 ip 10.0.0.254
+    #standby 5 priority 80
+    (pour voir les infos de HSRP: R1#show standby)
+    #no shutdown
+    #exit
+
+    apd. de 'Router>':
+    #enable
+    #interface GigabitEthernet0/0/0.2
+    (200 représente le num. de VLAN)
+    #encapsulation dot1q 200
+    #ip address 20.0.0.252 255.255.255.0
+    Pour le protocole HSRP:
+    #standby 5 ip 20.0.0.254
+    #standby 5 priority 100
+    #no shutdown
+    #exit
+    Allumer l'interface (checkbox sur 'on')
+
+PARTIE INTERCO 
+    apd. de 'Router>':
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/1
+    #ip address 60.0.0.1 255.255.255.252
+    #no shutdown
+    #exit
+
+Configuration de Router2:
+    'Router2' sur le port GigabitEthernet0/0/0:
+    apd. de 'Router>' (dans l'onlget 'CLI'):
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/0.1
+    #encapsulation dot1q 300
+    #ip address 30.0.0.253 255.255.255.0
+    Pour le protocole HSRP:
+    #standby 5 ip 30.0.0.254
+    #standby 5 priority 100
+    (pour voir les infos de HSRP: R1#show standby)
+    #no shutdown
+    #exit
+    Allumer l'interface (checkbox sur 'on')
+    
+PARTIE INTERCO 
+    apd. de 'Router>':
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/1
+    #ip address 50.0.0.2 255.255.255.252
+    #no shutdown
+    #exit
+
+Configuration de Router3:
+    'Router3' sur le port GigabitEthernet0/0/0:
+    apd. de 'Router>' (dans l'onlget 'CLI'):
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/0.1
+    #encapsulation dot1q 300
+    #ip address 30.0.0.252 255.255.255.0
+    Pour le protocole HSRP:
+    #standby 5 ip 30.0.0.254
+    #standby 5 priority 80
+    (pour voir les infos de HSRP: R1#show standby)
+    #no shutdown
+    #exit
+    Allumer l'interface (checkbox sur 'on')
+
+
+PARTIE INTERCO 
+    apd. de 'Router>':
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/1
+    #ip address 60.0.0.2 255.255.255.252
+    #no shutdown
+    #exit
+
+
+La table de routage de router0 et router1 n'ont pas de default route, pour modifier cela:
+Sur router0:
+    #ip route 0.0.0.0 0.0.0.0 50.0.0.2
+Sur router1:
+    #ip route 0.0.0.0 0.0.0.0 60.0.0.2
+
+Au final j'arrive à ping entre les machines PC0 et PC1 mais aucun des 2 vers PC2.
+Après avoir ajouté la default route en static dans les routeurs router0 et router1, le ping suivants fonctionnent:
+- router0 -> 30.0.0.253
+- router1 -> 30.0.0.252
+mais aucun des 2 vers 30.0.0.1
+Pour voir les pings de PC0 et PC1, voir les captures d'écrans.
+
 4.2 Quelle est la table de routage de RT2 ?
+    voir la capture d'écran.
+
+
+
+
 
 5.1 Validez la possibilité de faire un ping entre PC1, PC2 et PC3
+Configuration de PC0:
+    Aller dans l'onglet 'Desktop'-> IPConfiguration
+    IPv4 address: 10.0.0.1
+    Subnet mask: 255.255.255.0
+    Default gateway: 10.0.0.254
+    DNS server 0.0.0.0
+Configuration de PC1:
+    Aller dans l'onglet 'Desktop'-> IPConfiguration
+    IPv4 address: 20.0.0.1
+    Subnet mask: 255.255.255.0
+    Default gateway: 20.0.0.254
+    DNS server 0.0.0.0
+Configuration de PC2:
+    Aller dans l'onglet 'Desktop'-> IPConfiguration
+    IPv4 address: 30.0.0.1
+    Subnet mask: 255.255.255.0
+    Default gateway: 30.0.0.254
+    DNS server 0.0.0.0
+
+Configuration du switch0:
+    Aller dans l'onglet 'Config'-> VLAN Database
+    Ajouter les 2 VLAN's:
+    VLAN Number: 100
+    VLAN name: vlan-100
+    'add'
+    et
+    VLAN Number: 200
+    VLAN name: vlan-200
+    'add'
+    Configurer les ports du switch:
+        Celui vers PC0 (FastEthernet0/1):
+        VLAN -> 100
+        Puis cocher la checkbox sur 'On'
+        Celui vers PC1 (FastEthernet0/2):
+        VLAN -> 200
+        Puis cocher la checkbox sur 'On'
+
+        Celui vers Router0 (FastEthernet0/3):
+        Mettre 'Trunk' au lieu d''Access'
+        Laisser le VLAN sur '1'
+        Puis cocher la checkbox sur 'On'
+
+Configuration du switch1:
+    Aller dans l'onglet 'Config'-> VLAN Database
+    Ajouter le VLAN:
+    VLAN Number: 300
+    VLAN name: vlan-300
+    'add'
+    Configurer les ports du switch:
+        Celui vers PC2 (FastEthernet0/1):
+        VLAN -> 300
+        Puis cocher la checkbox sur 'On'
+
+        Celui vers Router2 (FastEthernet0/2):
+        Mettre 'Trunk' au lieu d''Access'
+        Laisser le VLAN sur '1'
+        Puis cocher la checkbox sur 'On'
+
+Configuration de Router0:
+1 cable entre le switch0 et router0 donc utilisation de sous-interfaces.
+    'Router0' sur le port GigabitEthernet0/0/0:
+    apd. de 'Router>' (dans l'onlget 'CLI'):
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/0.1
+    (100 représente le num. de VLAN)
+    #encapsulation dot1q 100
+    #ip address 10.0.0.254 255.255.255.0
+    #no shutdown
+    #exit
+    Allumer l'interface (checkbox sur 'on')
+
+    apd. de 'Router>':
+    #enable
+    #interface GigabitEthernet0/0/0.2
+    (200 représente le num. de VLAN)
+    #encapsulation dot1q 200
+    #ip address 20.0.0.254 255.255.255.0
+    #no shutdown
+    #exit
+
+PARTIE INTERCO 
+    apd. de 'Router>':
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/1
+    #ip address 50.0.0.1 255.255.255.252
+    #no shutdown
+    #exit
+
+    Default Route:
+    #ip route 0.0.0.0 0.0.0.0 50.0.0.2
+
+Configuration de Router1:
+PARTIE INTERCO 
+    apd. de 'Router>':
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/0
+    #ip address 50.0.0.2 255.255.255.252
+    #no shutdown
+    #exit
+
+    apd. de 'Router>':
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/1
+    #ip address 60.0.0.2 255.255.255.252
+    #no shutdown
+    #exit
+
+Configuration de Router2:
+    'Router2' sur le port GigabitEthernet0/0/0:
+    apd. de 'Router>' (dans l'onlget 'CLI'):
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/0.1
+    (300 représente le num. de VLAN)
+    #encapsulation dot1q 300
+    #ip address 30.0.0.254 255.255.255.0
+    #no shutdown
+    #exit
+    Allumer l'interface (checkbox sur 'on')
+
+    Default Route:
+    #ip route 0.0.0.0 0.0.0.0 60.0.0.2
+
+
+PARTIE INTERCO 
+    apd. de 'Router>':
+    #enable
+    #configure terminal
+    #interface GigabitEthernet0/0/1
+    #ip address 60.0.0.1 255.255.255.252
+    #no shutdown
+    #exit
+
+Au final, j'arrive à ping entre PC0 et PC1 et inversément. Mais aucun des 2 vers PC2.
+Le problème se situe au niveau du routage à partir du router0 si on pars de PC0 ou PC1.
+ping vers 50.0.0.1 fonctionne mais 50.0.0.2 (router1) ne fonctionne pas. 
+J'ai ajouté la default route au router0 pour accéder au router 1 (50.0.0.2) mais cela ne fonctionne pas.
+
 5.2 Quelle est la table de routage de RT2 ?
+    voir la capture d'écran.
