@@ -1,3 +1,7 @@
+Rendu TP1 Réseau
+Pierre Michiels
+Thierno souleymane Bah
+
 2.1 Configurez RT1 avec des sous interfaces plutot que d’utiliser les 2 interfaces Giga
 Configuration de PC0:
     Aller dans l'onglet 'Desktop'-> IPConfiguration
