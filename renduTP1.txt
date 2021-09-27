@@ -198,6 +198,12 @@ Configuration de Router1:
     Le ping vers et depuis PC2 ne fonctionne pas.
     Depuis PC0, il est logique qu'il n'y accède pas car le paquet à partir du switch0, la priorité de 100 indique le chemin vers le router0.
     Qui lui n'ai pas de chemin pour aller vers PC2.
+    Pour solutioner ca, on ajoute une route statique au router0:
+    La table de routage de router0 n'a pas de default route, pour modifier cela:
+    Sur router0:
+        #ip route 0.0.0.0 0.0.0.0 10.0.0.254
+    Et maintenant, le ping entre PC0 et PC2 fonctionne car à partir de router0, 
+    il utilisera sa defaultroute qui mène ver router1 puis qui lui redirigera le paquet vers PC2.
 
 3.2 Quelle est la table de routage de RT2 ?
     Aller sur l'onglet 'CLI'
@@ -308,8 +314,8 @@ Configuration de Router0:
     #encapsulation dot1q 200
     #ip address 20.0.0.253 255.255.255.0
     Pour le protocole HSRP:
-    #standby 5 ip 20.0.0.254
-    #standby 5 priority 80
+    #standby 6 ip 20.0.0.254
+    #standby 6 priority 80
     #no shutdown
     #exit
     Allumer l'interface (checkbox sur 'on')
@@ -350,8 +356,8 @@ Configuration de Router1:
     #encapsulation dot1q 200
     #ip address 20.0.0.252 255.255.255.0
     Pour le protocole HSRP:
-    #standby 5 ip 20.0.0.254
-    #standby 5 priority 100
+    #standby 6 ip 20.0.0.254
+    #standby 6 priority 100
     #no shutdown
     #exit
     Allumer l'interface (checkbox sur 'on')
@@ -374,8 +380,8 @@ Configuration de Router2:
     #encapsulation dot1q 300
     #ip address 30.0.0.253 255.255.255.0
     Pour le protocole HSRP:
-    #standby 5 ip 30.0.0.254
-    #standby 5 priority 100
+    #standby 7 ip 30.0.0.254
+    #standby 7 priority 100
     (pour voir les infos de HSRP: R1#show standby)
     #no shutdown
     #exit
@@ -399,8 +405,8 @@ Configuration de Router3:
     #encapsulation dot1q 300
     #ip address 30.0.0.252 255.255.255.0
     Pour le protocole HSRP:
-    #standby 5 ip 30.0.0.254
-    #standby 5 priority 80
+    #standby 7 ip 30.0.0.254
+    #standby 7 priority 80
     (pour voir les infos de HSRP: R1#show standby)
     #no shutdown
     #exit
@@ -417,18 +423,18 @@ PARTIE INTERCO
     #exit
 
 
-La table de routage de router0 et router1 n'ont pas de default route, pour modifier cela:
+La table de routage de router0, router1, router2 et router3 n'ont pas de default route, pour modifier cela:
 Sur router0:
     #ip route 0.0.0.0 0.0.0.0 50.0.0.2
 Sur router1:
     #ip route 0.0.0.0 0.0.0.0 60.0.0.2
+Sur router2:
+    #ip route 0.0.0.0 0.0.0.0 50.0.0.1
+Sur router3:
+    #ip route 0.0.0.0 0.0.0.0 60.0.0.1
 
-Au final j'arrive à ping entre les machines PC0 et PC1 mais aucun des 2 vers PC2.
-Après avoir ajouté la default route en static dans les routeurs router0 et router1, le ping suivants fonctionnent:
-- router0 -> 30.0.0.253
-- router1 -> 30.0.0.252
-mais aucun des 2 vers 30.0.0.1
-Pour voir les pings de PC0 et PC1, voir les captures d'écrans.
+Au final j'arrive à ping entre les machines PC0, PC1 et PC2.
+Pour voir les pings de PC0, PC1 et PC2 voir les captures d'écrans.
 
 4.2 Quelle est la table de routage de RT2 ?
     voir la capture d'écran.
@@ -538,7 +544,7 @@ PARTIE INTERCO
     #configure terminal
     #interface GigabitEthernet0/0/0
     #ip address 50.0.0.2 255.255.255.252
-    #no shutdown
+    #no shutdown0
     #exit
 
     apd. de 'Router>':
@@ -575,10 +581,17 @@ PARTIE INTERCO
     #no shutdown
     #exit
 
-Au final, j'arrive à ping entre PC0 et PC1 et inversément. Mais aucun des 2 vers PC2.
-Le problème se situe au niveau du routage à partir du router0 si on pars de PC0 ou PC1.
-ping vers 50.0.0.1 fonctionne mais 50.0.0.2 (router1) ne fonctionne pas. 
-J'ai ajouté la default route au router0 pour accéder au router 1 (50.0.0.2) mais cela ne fonctionne pas.
+La table de routage de router0, router1 et router2 n'ont pas de default route, pour modifier cela:
+Sur router0:
+    #ip route 0.0.0.0 0.0.0.0 50.0.0.2
+Sur router1:
+    #ip route 10.0.0.0 255.255.255.0 50.0.0.1
+    #ip route 20.0.0.0 255.255.255.0 50.0.0.1
+    #ip route 30.0.0.0 255.255.255.0 60.0.0.1
+Sur router2:
+    #ip route 0.0.0.0 0.0.0.0 60.0.0.2
+
+Pour voir les pings entre les machines PC0, PC1 et PC2, voir les captures d'écrans.
 
 5.2 Quelle est la table de routage de RT2 ?
     voir la capture d'écran.
